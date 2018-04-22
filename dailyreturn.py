@@ -24,7 +24,7 @@ def clustering(data):
     best_score = -100
     for i in range(2, 30):
         em = GaussianMixture(n_components=i, covariance_type='tied',
-            max_iter=1000)
+            max_iter=500)
         em.fit(data)
         score = silhouette_score(data, em.predict(data))
         if score > best_score:
@@ -32,7 +32,7 @@ def clustering(data):
             best_cluster = i
         clustering_scores.append(score)
 
-    em = GaussianMixture(n_components=2, covariance_type='tied')
+    em = GaussianMixture(n_components=3, covariance_type='tied', max_iter=500)
     em.fit(data)
     labels = em.predict(data)
     covariance = em.covariances_
