@@ -24,5 +24,14 @@ def mean_confidence_interval(data, confidence=0.95):
     return m, m-h, m+h
 
 df = get_csv_data("DailyReturn800.csv")
-for i in df.axes[1]:
-    print(scipy.stats.kurtosis(df[i]))
+top_from_clusters = []
+for cluster in clusters:
+    max = cluster[0]
+    for i in cluster:
+        if scipy.stats.kurtosis(cluster[i]) > scipy.stats.kurtosis(cluster[max]):
+            max = i
+    top_from_clusters += max
+
+cis = [][]
+for stock in top_from_clusters:
+    cis = 
