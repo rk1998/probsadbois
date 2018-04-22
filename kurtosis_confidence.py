@@ -25,4 +25,5 @@ def mean_confidence_interval(data, confidence=0.95):
 
 df = get_csv_data("DailyReturn800.csv")
 for i in df.axes[1]:
-    print(scipy.stats.kurtosis(df[i]))
+    #print(scipy.stats.kurtosis(df[i]))
+    print(mean_confidence_interval(df[i]))
