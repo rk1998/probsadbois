@@ -7,6 +7,9 @@ from sklearn.metrics import silhouette_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
+import scipy as sp
+import scipy.stats
+
 
 def get_csv_data(filename, index=None):
     '''
