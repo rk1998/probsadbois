@@ -9,6 +9,23 @@ import matplotlib.pyplot as plt
 import scipy as sp
 import scipy.stats
 
+#import final_project as fp#
+
+
+def plot_return_curve(stock_data, stock_names, initial_investment=1000, investment_period):
+    '''
+    Calculates the amount of money you make on a set of stocks
+    '''
+    result_per_day = []
+    starting_values = [initial_investment]*len(stock_names)
+    for i in range(0, investment_period):
+        money_made = 0
+        for j in range(0, len(stock_names)):
+            return_values = stock_data[stock]
+            closing_value = starting_values[i] + (starting_values[i] * return_values[j])
+            money_made += closing_value - starting_values[i]
+            starting_values[i] = closing_value
+        result_per_day.append(money_made)
 
 def get_csv_data(filename, index=None):
     '''
@@ -68,6 +85,13 @@ def mean_confidence_interval(data, confidence=0.95):
     m, se = np.mean(a), scipy.stats.sem(a)
     h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
     return m, m-h, m+h
+
+
+
+def exponential_distribution():
+    '''
+    '''
+    print("b")
 
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
