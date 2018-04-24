@@ -18,8 +18,6 @@
 # WAIT NEVERMIND, IGNORE THIS FILE, DAILYRETURN.PY IS ALREADY STITCHED????
 # WAIT NEVERMIND, IGNORE THIS FILE, DAILYRETURN.PY IS ALREADY STITCHED????
 
-
-
 # CLUSTER
 from sklearn.covariance import empirical_covariance
 from sklearn.mixture import GaussianMixture
