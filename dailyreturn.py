@@ -12,20 +12,33 @@ import scipy.stats
 #import final_project as fp#
 
 
-def plot_return_curve(stock_data, stock_names, initial_investment=1000, investment_period):
+def plot_return_curve(stock_data, stock_names, investment_period, initial_investment=1000):
     '''
     Calculates the amount of money you make on a set of stocks
+    stock_data - dataframe of testing set
+    stock_names - stocks you are investing in
+    investment_period - number of days you are investing
+    initial_investment - amount of money you are investing in each stock
     '''
     result_per_day = []
     starting_values = [initial_investment]*len(stock_names)
     for i in range(0, investment_period):
         money_made = 0
         for j in range(0, len(stock_names)):
-            return_values = stock_data[stock]
-            closing_value = starting_values[i] + (starting_values[i] * return_values[j])
-            money_made += closing_value - starting_values[i]
-            starting_values[i] = closing_value
+            return_values = stock_data[stock_names[j]]
+            closing_value = starting_values[j] + (starting_values[j] * (return_values[i]/100.0))
+            print(closing_value)
+            money_made += closing_value - starting_values[j]
+            starting_values[j] = closing_value
         result_per_day.append(money_made)
+    plt.figure(1)
+    plt.plot(range(0, investment_period), result_per_day, '-', color='r', label='Assets')
+    plt.title("Assets Over Time")
+    plt.xlabel("Time (Days)")
+    plt.ylabel("USD")
+    plt.legend()
+    plt.show()
+
 
 def get_csv_data(filename, index=None):
     '''
@@ -96,6 +109,9 @@ def exponential_distribution():
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
 training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
+training_data_frame = pd.DataFrame(data=training_data, index=None, columns=stock_names)
+testing_data_frame = pd.DataFrame(data=testing_data, index=None, columns=stock_names)
+plot_return_curve(testing_data_frame, stock_names, 600, initial_investment=100)
 scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
 #print(labels)
 
@@ -110,7 +126,7 @@ top_from_clusters = []
 for cluster in clusters:
     maxindex = 0
     for i in range(len(cluster)):
-        if scipy.stats.kurtosis(df[cluster[i]]) > scipy.stats.kurtosis(df[cluster[maxindex]]):
+        if scipy.stats.kurtosis(training_data_frame[cluster[i]]) > scipy.stats.kurtosis(training_data_frame[cluster[maxindex]]):
             maxindex = i
     top_from_clusters.append(cluster[maxindex])
 #print(top_from_clusters)
@@ -118,7 +134,7 @@ for cluster in clusters:
 #create dict of confidence intervals and stock tags
 top_ci = {}
 for i in top_from_clusters:
-    top_ci[mean_confidence_interval(df[i])[1]] = i
+    top_ci[mean_confidence_interval(training_data_frame[i])[1]] = i
 
 #sort that data structure and create a list of the top 15 by CI
 keylist = sorted(top_ci.keys(), reverse = True)
