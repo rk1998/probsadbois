@@ -27,7 +27,6 @@ def plot_return_curve(stock_data, stock_names, investment_period, initial_invest
         for j in range(0, len(stock_names)):
             return_values = stock_data[stock_names[j]]
             closing_value = starting_values[j] + (starting_values[j] * (return_values[i]/100.0))
-            print(closing_value)
             money_made += closing_value - starting_values[j]
             starting_values[j] = closing_value
         result_per_day.append(money_made)
@@ -38,7 +37,6 @@ def plot_return_curve(stock_data, stock_names, investment_period, initial_invest
     plt.ylabel("USD")
     plt.legend()
     plt.show()
-
 
 def get_csv_data(filename, index=None):
     '''
@@ -99,19 +97,47 @@ def mean_confidence_interval(data, confidence=0.95):
     h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
     return m, m-h, m+h
 
-
-
-def exponential_distribution():
+def exponential_distribution(data_frame, stock_names):
     '''
+    Fits the stock's daily returns to the CDF of an exponential distribution
     '''
-    print("b")
+    waitingDict = {}
+    for stock in stock_names:
+        currArray = df[stock]
+        waitingDict[stock] = []
+        currentnegcount = 0
+        for i in range(len(currArray)):
+            if currArray[i] <= 0:
+                currentnegcount += 1
+                currArray[i] = -1
+            else:
+                if currentnegcount > 0:
+                    waitingDict[stock] = waitingDict[stock] + [currentnegcount]
+                currentnegcount = 0
+                currArray[i] = 1
+    # Finding MLE for lambda for every stock
+    MLEdict = {}
+    for stock in stock_names:
+        lamb = float(len(waitingDict[stock])) / sum(waitingDict[stock])
+        MLEdict[stock] = lamb
+    # Finding the cdf probability
+    cdfs = {}
+    for stock in stock_names:
+        count_x = 0
+        i = 1
+        while list(df[stock])[-i] <= 0:
+            i += 1
+            count_x += 1
+        l = MLEdict[stock]
+        cdfs[stock] = 1 - np.exp(-l*count_x)
+    return cdfs
 
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
 training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
 training_data_frame = pd.DataFrame(data=training_data, index=None, columns=stock_names)
 testing_data_frame = pd.DataFrame(data=testing_data, index=None, columns=stock_names)
-plot_return_curve(testing_data_frame, stock_names, 600, initial_investment=100)
+#plot_return_curve(testing_data_frame, stock_names, 600, initial_investment=100)
 scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
 #print(labels)
 
@@ -154,6 +180,13 @@ for key in keylist:
     top_15.append(top_ci[key])
 top_15 = top_15[0:15]
 print(top_15)
+
+cdf_map = exponential_distribution(training_data_frame, top_15)
+cdf_keylist = sorted(cdf_map.keys(), reverse = True)
+final_portfolio = cdf_keylist[0:10]
+print(final_portfolio)
+plot_return_curve(testing_data_frame, final_portfolio, 600, initial_investment=100)
+
 
 
 
