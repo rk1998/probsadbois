@@ -12,20 +12,31 @@ import scipy.stats
 #import final_project as fp#
 
 
-def plot_return_curve(stock_data, stock_names, initial_investment=1000, investment_period):
+def plot_return_curve(stock_data, stock_names, investment_period, initial_investment=1000):
     '''
     Calculates the amount of money you make on a set of stocks
+    stock_data - dataframe of testing set
+    stock_names - stocks you are investing in
+    investment_period - number of days you are investing
+    initial_investment - amount of money you are investing in each stock
     '''
     result_per_day = []
     starting_values = [initial_investment]*len(stock_names)
     for i in range(0, investment_period):
         money_made = 0
         for j in range(0, len(stock_names)):
-            return_values = stock_data[stock]
-            closing_value = starting_values[i] + (starting_values[i] * return_values[j])
-            money_made += closing_value - starting_values[i]
-            starting_values[i] = closing_value
+            return_values = stock_data[stock_names[j]]
+            closing_value = starting_values[j] + (starting_values[j] * (return_values[i]/100.0))
+            money_made += closing_value - starting_values[j]
+            starting_values[j] = closing_value
         result_per_day.append(money_made)
+    plt.figure(1)
+    plt.plot(range(0, investment_period), result_per_day, '-', color='r', label='Assets')
+    plt.title("Assets Over Time")
+    plt.xlabel("Time (Days)")
+    plt.ylabel("USD")
+    plt.legend()
+    plt.show()
 
 def get_csv_data(filename, index=None):
     '''
@@ -86,16 +97,47 @@ def mean_confidence_interval(data, confidence=0.95):
     h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
     return m, m-h, m+h
 
-
-
-def exponential_distribution():
+def exponential_distribution(data_frame, stock_names):
     '''
+    Fits the stock's daily returns to the CDF of an exponential distribution
     '''
-    print("b")
+    waitingDict = {}
+    for stock in stock_names:
+        currArray = df[stock]
+        waitingDict[stock] = []
+        currentnegcount = 0
+        for i in range(len(currArray)):
+            if currArray[i] <= 0:
+                currentnegcount += 1
+                currArray[i] = -1
+            else:
+                if currentnegcount > 0:
+                    waitingDict[stock] = waitingDict[stock] + [currentnegcount]
+                currentnegcount = 0
+                currArray[i] = 1
+    # Finding MLE for lambda for every stock
+    MLEdict = {}
+    for stock in stock_names:
+        lamb = float(len(waitingDict[stock])) / sum(waitingDict[stock])
+        MLEdict[stock] = lamb
+    # Finding the cdf probability
+    cdfs = {}
+    for stock in stock_names:
+        count_x = 0
+        i = 1
+        while list(df[stock])[-i] <= 0:
+            i += 1
+            count_x += 1
+        l = MLEdict[stock]
+        cdfs[stock] = 1 - np.exp(-l*count_x)
+    return cdfs
 
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
 training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
+training_data_frame = pd.DataFrame(data=training_data, index=None, columns=stock_names)
+testing_data_frame = pd.DataFrame(data=testing_data, index=None, columns=stock_names)
+#plot_return_curve(testing_data_frame, stock_names, 600, initial_investment=100)
 scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
 #print(labels)
 
@@ -114,8 +156,13 @@ for cluster in clusters:
     top_kurt = {}
     top_mean = {}
     for i in range(len(cluster)):
+<<<<<<< HEAD
         top_kurt[scipy.stats.kurtosis(df[cluster[i]])] = cluster[i]
         top_mean[mean_confidence_interval(df[cluster[i]])[0]] = cluster[i]
+=======
+        top_kurt[scipy.stats.kurtosis(training_data_frame[cluster[i]])] = cluster[i]
+        top_mean[mean_confidence_interval(training_data_frame[cluster[i]])[0]] = cluster[i]
+>>>>>>> ee935b5279754bf09f198d2ed3f7c43ef18080e9
     keylist1 = sorted(top_kurt.keys(), reverse = True)
     sort_kurt = []
     for key in keylist1:
@@ -132,7 +179,11 @@ for cluster in clusters:
 #create dict of confidence intervals and stock tags
 top_ci = {}
 for i in top_from_clusters:
+<<<<<<< HEAD
     top_ci[mean_confidence_interval(training_data[i])[1]] = i
+=======
+    top_ci[mean_confidence_interval(training_data_frame[i])[1]] = i
+>>>>>>> ee935b5279754bf09f198d2ed3f7c43ef18080e9
 
 #sort that data structure and create a list of the top 15 by CI
 keylist = sorted(top_ci.keys(), reverse = True)
@@ -141,6 +192,13 @@ for key in keylist:
     top_15.append(top_ci[key])
 top_15 = top_15[0:15]
 print(top_15)
+
+cdf_map = exponential_distribution(training_data_frame, top_15)
+cdf_keylist = sorted(cdf_map.keys(), reverse = True)
+final_portfolio = cdf_keylist[0:10]
+print(final_portfolio)
+plot_return_curve(testing_data_frame, final_portfolio, 600, initial_investment=100)
+
 
 
 

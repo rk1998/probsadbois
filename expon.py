@@ -57,7 +57,7 @@ for stock in stock_names:
         i += 1
         count_x += 1
     l = MLEdict[stock]
-    cdf[stock] = 1 - np.exp(-l*count_x)
+    cdfs[stock] = 1 - np.exp(-l*count_x)
 
 
 # cdfs is a dict that outputs all the probabilities
@@ -77,9 +77,9 @@ for stock in stock_names:
 # # probability of there being a
 # cdf = 1 - np.exp(-l*count_x)
 
-print count_x
-print MLEdict['AAME']
-print cdf
+print(count_x)
+print(MLEdict['AAME'])
+print(cdfs)
 
 
 
