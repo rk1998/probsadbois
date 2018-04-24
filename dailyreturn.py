@@ -6,6 +6,9 @@ from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 import matplotlib.pyplot as plt
 
+import scipy as sp
+import scipy.stats
+
 
 def get_csv_data(filename, index=None):
     '''
