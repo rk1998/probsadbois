@@ -31,7 +31,6 @@ def clustering(data, column_names):
             best_score = score
             best_cluster = i
         clustering_scores.append(score)
-
     em = GaussianMixture(n_components=22, covariance_type='tied', max_iter=500)
     em.fit(data)
     labels = em.predict(data)
@@ -50,14 +49,31 @@ def plot_results(x_val, y_val, title, x_label, y_label):
     plt.legend()
     plt.show()
 
+def mean_confidence_interval(data, confidence=0.95):
+    a = 1.0*np.array(data)
+    n = len(a)
+    m, se = np.mean(a), scipy.stats.sem(a)
+    h = se * sp.stats.t._ppf((1+confidence)/2., n-1)
+    return m, m-h, m+h
 
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
-scores, cluster_range, clusters, labels, covariance_matrix, = clustering(np.transpose(df.values), stock_names.values)
-print(clusters)
+scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(df.values), stock_names.values)
 print(labels)
-print(covariance_matrix)
+clusters = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+for stock in clusterlist:
+    clusters[clusterlist[stock]].append(stock)
+print(clusters)
+
+top_from_clusters = []
+for cluster in clusters:
+    maxindex = 0
+    for i in range(len(cluster)):
+        if scipy.stats.kurtosis(df[cluster[i]]) > scipy.stats.kurtosis(df[cluster[maxindex]]):
+            maxindex = i
+    print(maxindex, cluster[maxindex])
+    top_from_clusters.append(cluster[maxindex])
+print(top_from_clusters)
+
 #plot_results(cluster_range, scores,
    # "Expectation Maximization Clustering", "Number of Clusters", "Score")
-
-
