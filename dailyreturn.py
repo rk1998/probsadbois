@@ -6,7 +6,6 @@ from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-
 import scipy as sp
 import scipy.stats
 
@@ -74,21 +73,36 @@ df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
 training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
 scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
-print(labels)
+#print(labels)
+
+#puts clusters into 2D array
 clusters = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
 for stock in clusterlist:
     clusters[clusterlist[stock]].append(stock)
-print(clusters)
+#print(clusters)
 
+#gets top stock per cluster using kurtosis
 top_from_clusters = []
 for cluster in clusters:
     maxindex = 0
     for i in range(len(cluster)):
         if scipy.stats.kurtosis(df[cluster[i]]) > scipy.stats.kurtosis(df[cluster[maxindex]]):
             maxindex = i
-    print(maxindex, cluster[maxindex])
     top_from_clusters.append(cluster[maxindex])
-print(top_from_clusters)
+#print(top_from_clusters)
+
+#create dict of confidence intervals and stock tags
+top_ci = {}
+for i in top_from_clusters:
+    top_ci[mean_confidence_interval(df[i])[1]] = i
+
+#sort that data structure and create a list of the top 15 by CI
+keylist = sorted(top_ci.keys(), reverse = True)
+top_15 = []
+for key in keylist:
+    top_15.append(top_ci[key])
+top_15 = top_15[0:15]
+print(top_15)
 
 #plot_results(cluster_range, scores,
    # "Expectation Maximization Clustering", "Number of Clusters", "Score")
