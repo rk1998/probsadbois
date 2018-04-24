@@ -105,14 +105,17 @@ for stock in clusterlist:
     clusters[clusterlist[stock]].append(stock)
 #print(clusters)
 
+for cluster in clusters:
+    print(len(cluster))
+
 #gets top stock per cluster using kurtosis and mean
 top_from_clusters = []
 for cluster in clusters:
     top_kurt = {}
     top_mean = {}
     for i in range(len(cluster)):
-        top_kurt[scipy.stats.kurtosis(training_data[cluster[i]])] = cluster[i]
-        top_mean[mean_confidence_interval(training_data[cluster[i]])[0]] = cluster[i]
+        top_kurt[scipy.stats.kurtosis(df[cluster[i]])] = cluster[i]
+        top_mean[mean_confidence_interval(df[cluster[i]])[0]] = cluster[i]
     keylist1 = sorted(top_kurt.keys(), reverse = True)
     sort_kurt = []
     for key in keylist1:
@@ -129,7 +132,7 @@ for cluster in clusters:
 #create dict of confidence intervals and stock tags
 top_ci = {}
 for i in top_from_clusters:
-    top_ci[mean_confidence_interval(df[i])[1]] = i
+    top_ci[mean_confidence_interval(training_data[i])[1]] = i
 
 #sort that data structure and create a list of the top 15 by CI
 keylist = sorted(top_ci.keys(), reverse = True)
