@@ -20,6 +20,10 @@ def get_csv_data(filename, index=None):
         print("file not found")
 
 def clustering(data, column_names):
+    '''
+    Clusters Training Data to create groups of stocks that are
+    similar to each other based on covariance.
+    '''
     clustering_scores = []
     best_cluster = 2
     best_score = -100
@@ -42,6 +46,9 @@ def clustering(data, column_names):
     return clustering_scores, range(2,30), stock_to_cluster_map, labels, covariance
 
 def plot_results(x_val, y_val, title, x_label, y_label):
+    '''
+    Plots Silhouette Scores of Clustering Experiments
+    '''
     plt.figure(1)
     plt.plot(x_val, y_val, 'o-', color='b', label='Silhouette Score')
     plt.title(title)
@@ -51,6 +58,9 @@ def plot_results(x_val, y_val, title, x_label, y_label):
     plt.show()
 
 def mean_confidence_interval(data, confidence=0.95):
+    '''
+    Finds the mean confidence Interval on a Stock's Daily Return Values
+    '''
     a = 1.0*np.array(data)
     n = len(a)
     m, se = np.mean(a), scipy.stats.sem(a)
