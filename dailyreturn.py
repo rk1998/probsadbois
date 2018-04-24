@@ -121,15 +121,26 @@ for stock in clusterlist:
     clusters[clusterlist[stock]].append(stock)
 #print(clusters)
 
-#gets top stock per cluster using kurtosis
+#gets top stock per cluster using kurtosis and mean
 top_from_clusters = []
 for cluster in clusters:
-    maxindex = 0
+    top_kurt = {}
+    top_mean = {}
     for i in range(len(cluster)):
-        if scipy.stats.kurtosis(training_data_frame[cluster[i]]) > scipy.stats.kurtosis(training_data_frame[cluster[maxindex]]):
-            maxindex = i
-    top_from_clusters.append(cluster[maxindex])
-#print(top_from_clusters)
+        top_kurt[scipy.stats.kurtosis(training_data_frame[cluster[i]])] = cluster[i]
+        top_mean[mean_confidence_interval(training_data_frame[cluster[i]])[0]] = cluster[i]
+    keylist1 = sorted(top_kurt.keys(), reverse = True)
+    sort_kurt = []
+    for key in keylist1:
+        sort_kurt.append(top_kurt[key])
+    keylist2 = sorted(top_mean.keys(), reverse = True)
+    sort_mean = []
+    for key in keylist2:
+        sort_mean.append(top_mean[key])
+    for i in range(len(sort_kurt)):
+        if sort_mean.index(sort_kurt[i]) <= i:
+            top_from_clusters.append(sort_kurt[i])
+            break
 
 #create dict of confidence intervals and stock tags
 top_ci = {}
@@ -143,6 +154,8 @@ for key in keylist:
     top_15.append(top_ci[key])
 top_15 = top_15[0:15]
 print(top_15)
+
+
 
 #plot_results(cluster_range, scores,
    # "Expectation Maximization Clustering", "Number of Clusters", "Score")
