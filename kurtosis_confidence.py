@@ -34,4 +34,4 @@ for cluster in clusters:
 
 cis = [][]
 for stock in top_from_clusters:
-    cis = 
+    cis =
