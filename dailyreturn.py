@@ -4,6 +4,7 @@ import os
 from sklearn.covariance import empirical_covariance
 from sklearn.mixture import GaussianMixture
 from sklearn.metrics import silhouette_score
+from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 
 
@@ -58,7 +59,8 @@ def mean_confidence_interval(data, confidence=0.95):
 
 df = get_csv_data("DailyReturn800.csv")
 stock_names = df.columns
-scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(df.values), stock_names.values)
+training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
+scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
 print(labels)
 clusters = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
 for stock in clusterlist:
