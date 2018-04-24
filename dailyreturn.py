@@ -12,7 +12,7 @@ import scipy.stats
 #import final_project as fp#
 
 
-def plot_return_curve(stock_data, stock_names, investment_period, initial_investment=1000):
+def calculate_return_curve(stock_data, stock_names, investment_period, initial_investment=1000):
     '''
     Calculates the amount of money you make on a set of stocks
     stock_data - dataframe of testing set
@@ -27,11 +27,19 @@ def plot_return_curve(stock_data, stock_names, investment_period, initial_invest
         for j in range(0, len(stock_names)):
             return_values = stock_data[stock_names[j]]
             closing_value = starting_values[j] + (starting_values[j] * (return_values[i]/100.0))
-            money_made += closing_value - starting_values[j]
+            money_made += closing_value
             starting_values[j] = closing_value
         result_per_day.append(money_made)
+    return range(0, investment_period), result_per_day
+
+def plot_return_curve(investment_period, initial_returns, algo_returns, rejected_returns):
+    '''
+    Plots the return curve
+    '''
     plt.figure(1)
-    plt.plot(range(0, investment_period), result_per_day, '-', color='r', label='Assets')
+    plt.plot(investment_period, initial_returns, '-', color='r', label='Initial Returns')
+    plt.plot(investment_period, algo_returns, '-', color='b', label='Our Algo')
+    plt.plot(investment_period, rejected_returns, '-', color='g', label='Rejected Stocks')
     plt.title("Assets Over Time")
     plt.xlabel("Time (Days)")
     plt.ylabel("USD")
@@ -137,7 +145,7 @@ stock_names = df.columns
 training_data, testing_data = train_test_split(df.values, test_size=0.3, train_size=0.7, shuffle=False)
 training_data_frame = pd.DataFrame(data=training_data, index=None, columns=stock_names)
 testing_data_frame = pd.DataFrame(data=testing_data, index=None, columns=stock_names)
-#plot_return_curve(testing_data_frame, stock_names, 600, initial_investment=100)
+investment_period, return_values = calculate_return_curve(testing_data_frame, stock_names, 600, initial_investment=1.25)
 scores, cluster_range, clusterlist, labels, covariance_matrix, = clustering(np.transpose(training_data), stock_names.values)
 #print(labels)
 
@@ -185,7 +193,10 @@ cdf_map = exponential_distribution(training_data_frame, top_15)
 cdf_keylist = sorted(cdf_map.keys(), reverse = True)
 final_portfolio = cdf_keylist[0:10]
 print(final_portfolio)
-plot_return_curve(testing_data_frame, final_portfolio, 600, initial_investment=100)
+rejected_stock_names = list(set(stock_names) - set(final_portfolio))
+investment_period, algo_returns = calculate_return_curve(testing_data_frame, final_portfolio, 600, initial_investment=100)
+investment_period, rejected_stock_returns = calculate_return_curve(testing_data_frame, rejected_stock_names, 600, initial_investment=1.26)
+plot_return_curve(investment_period, return_values, algo_returns, rejected_stock_returns)
 
 
 
