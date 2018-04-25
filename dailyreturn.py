@@ -69,7 +69,7 @@ def clustering(data, column_names):
         em = GaussianMixture(n_components=i, covariance_type='tied',
             max_iter=500)
         em.fit(data)
-        score = silhouette_score(data, em.predict(data))
+        score = em.bic(data)
         if score > best_score:
             best_score = score
             best_cluster = i
@@ -83,12 +83,12 @@ def clustering(data, column_names):
         stock_to_cluster_map[column_names[i]] = labels[i]
     return clustering_scores, range(2,30), stock_to_cluster_map, labels, covariance
 
-def plot_results(x_val, y_val, title, x_label, y_label):
+def plot_clustering_results(x_val, y_val, title, x_label, y_label):
     '''
     Plots Silhouette Scores of Clustering Experiments
     '''
     plt.figure(1)
-    plt.plot(x_val, y_val, 'o-', color='b', label='Silhouette Score')
+    plt.plot(x_val, y_val, 'o-', color='b', label='BIC score')
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
